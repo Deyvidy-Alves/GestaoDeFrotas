@@ -7,7 +7,6 @@ import java.util.List;
 
 public class VeiculoDAO {
 
-    // Método para Salvar
     public void salvar(Veiculo v) throws SQLException {
         String sql = "INSERT INTO veiculos (modelo, placa, status, km_atual, km_ultima_revisao, valor_diaria) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConexaoDB.conectar();
@@ -15,7 +14,7 @@ public class VeiculoDAO {
             stmt.setString(1, v.getModelo());
             stmt.setString(2, v.getPlaca());
             stmt.setString(3, v.getStatus());
-            stmt.setInt(4, v.getKmAtual());
+            stmt.setInt(4, v.getKm());
             stmt.setInt(5, v.getKmUltimaRevisao());
             stmt.setDouble(6, v.getValorDiaria());
             stmt.execute();
@@ -36,7 +35,7 @@ public class VeiculoDAO {
                 v.setModelo(rs.getString("modelo"));
                 v.setPlaca(rs.getString("placa"));
                 v.setStatus(rs.getString("status"));
-                v.setKmAtual(rs.getInt("km_atual"));
+                v.setKm(rs.getInt("km_atual"));
                 v.setKmUltimaRevisao(rs.getInt("km_ultima_revisao"));
                 v.setValorDiaria(rs.getDouble("valor_diaria"));
                 lista.add(v);

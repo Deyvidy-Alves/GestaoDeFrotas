@@ -28,8 +28,11 @@ public class Veiculo {
     public void setPlaca(String placa) { this.placa = placa; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public int getKmAtual() { return kmAtual; }
-    public void setKmAtual(int kmAtual) { this.kmAtual = kmAtual; }
+
+    // Métodos renomeados para compatibilidade com o DAO/Controller
+    public int getKm() { return kmAtual; }
+    public void setKm(int km) { this.kmAtual = km; }
+
     public int getKmUltimaRevisao() { return kmUltimaRevisao; }
     public void setKmUltimaRevisao(int kmUltimaRevisao) { this.kmUltimaRevisao = kmUltimaRevisao; }
     public double getValorDiaria() { return valorDiaria; }

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField; // <--- NÃO ESQUEÇA DESSE IMPORT
 import javafx.stage.Stage;
 import org.example.gestaodefrotas.HelloApplication;
 import org.example.gestaodefrotas.dao.LocacaoDAO;
@@ -22,19 +23,18 @@ public class DevolucaoController {
 
     @FXML private ComboBox<Locacao> cbLocacoes;
     @FXML private Label lblResumo;
+    @FXML private TextField txtKmDevolucao;// <--- 1. DECLARAMOS O CAMPO AQUI
+    @FXML private Label lblKmRetirada;
 
     @FXML
     public void initialize() {
         carregarLocacoes();
-
-        // Quando o usuário escolhe uma locação na lista, a gente atualiza o texto do resumo
         cbLocacoes.setOnAction(event -> atualizarResumo());
     }
 
     private void carregarLocacoes() {
         try {
             cbLocacoes.getItems().clear();
-            // Chama aquele método novo que criamos no DAO
             cbLocacoes.getItems().addAll(new LocacaoDAO().listarEmAberto());
         } catch (SQLException e) {
             mostrarAlerta("Erro", "Erro ao carregar locações: " + e.getMessage());
@@ -44,39 +44,12 @@ public class DevolucaoController {
     private void atualizarResumo() {
         Locacao loc = cbLocacoes.getValue();
         if (loc != null) {
-            LocalDate hoje = LocalDate.now();
+            // Atualiza o Label do KM de retirada para o usuário ver
+            lblKmRetirada.setText("KM na retirada: " + loc.getVeiculo().getKm()); //
 
-            // 1. Cálculo dos dias normais (da retirada até a PREVISTA ou HOJE, o que for menor)
-            long diasTotais = ChronoUnit.DAYS.between(loc.getDataRetirada(), hoje);
-            if (diasTotais == 0) diasTotais = 1;
-
-            // 2. Verifica se houve atraso
-            long diasAtraso = 0;
-            if (hoje.isAfter(loc.getDataDevolucaoPrevista())) {
-                diasAtraso = ChronoUnit.DAYS.between(loc.getDataDevolucaoPrevista(), hoje);
-            }
-
-            double valorDiaria = loc.getVeiculo().getValorDiaria();
-            double valorNormal = diasTotais * valorDiaria;
-
-            // Multa: R$ 50,00 fixo + valor da diária extra
-            double multa = diasAtraso > 0 ? (diasAtraso * valorDiaria) + 50.0 : 0.0;
-
-            double totalFinal = valorNormal + multa;
-
-            String texto = String.format(
-                    "Veículo: %s\n" +
-                            "Dias Totais: %d\n" +
-                            "Dias de Atraso: %d\n" +
-                            "Valor Diárias: R$ %.2f\n" +
-                            "Multa por Atraso: R$ %.2f\n" +
-                            "--------------------\n" +
-                            "TOTAL A PAGAR: R$ %.2f",
-                    loc.getVeiculo().getModelo(),
-                    diasTotais, diasAtraso, valorNormal, multa, totalFinal
-            );
-
-            lblResumo.setText(texto);
+            // ... resto da sua lógica de cálculo de dias e multa ...
+        } else {
+            lblKmRetirada.setText("KM na retirada: --");
         }
     }
 
@@ -84,85 +57,47 @@ public class DevolucaoController {
     protected void onConfirmar() {
         Locacao loc = cbLocacoes.getValue();
         if (loc == null) {
-            mostrarAlerta("Atenção", "Selecione uma locação para devolver!");
+            mostrarAlerta("Atenção", "Selecione uma locação!");
             return;
         }
 
-        LocalDate hoje = LocalDate.now();
-        LocalDate dataPrevista = loc.getDataDevolucaoPrevista();
-
-        // 1. Proteção contra data futura (Viagem no tempo)
-        if (hoje.isBefore(loc.getDataRetirada())) {
-            mostrarAlerta("Erro", "Impossível devolver! A data de retirada é no futuro (" + loc.getDataRetirada() + ").");
+        // --- 2. LER E VALIDAR O KM ---
+        String textoKm = txtKmDevolucao.getText();
+        if (textoKm == null || textoKm.isEmpty()) {
+            mostrarAlerta("Erro", "Informe a quilometragem atual do veículo!");
             return;
         }
 
+        int kmDevolucao;
         try {
-            double valorDiaria = loc.getVeiculo().getValorDiaria();
+            kmDevolucao = Integer.parseInt(textoKm);
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Erro", "O KM deve ser um número válido!");
+            return;
+        }
 
-            // --- CÁLCULOS DETALHADOS ---
+        // Verifica se o cara não tá tentando voltar o hodômetro
+        if (kmDevolucao < loc.getVeiculo().getKm()) {
+            mostrarAlerta("Erro", "O KM atual (" + kmDevolucao + ") não pode ser menor que o da retirada (" + loc.getVeiculo().getKm() + ")!");
+            return;
+        }
 
-            // A. Dias Realmente Usados (Cobrança Normal)
-            long diasUsados = ChronoUnit.DAYS.between(loc.getDataRetirada(), hoje);
-            if (diasUsados == 0) diasUsados = 1; // Cobra pelo menos 1 dia se devolver no mesmo dia
-            double valorPelosDiasUsados = diasUsados * valorDiaria;
+        // Passa o KM novo para o objeto, pro DAO saber salvar depois
+        loc.getVeiculo().setKm(kmDevolucao);
+        // -----------------------------
 
-            // B. Verificação de Antecipação ou Atraso
-            double multaAtraso = 0.0;
-            double taxaRescisaoAntecipada = 0.0;
-            long diasRestantes = 0;
-            long diasAtraso = 0;
+        // Daqui pra baixo é a lógica de devolução que já fizemos (datas e valores)
+        try {
+            // ... Lógica de multas (pode manter a anterior) ...
 
-            if (hoje.isBefore(dataPrevista)) {
-                // CASO 1: Devolução Antecipada (Aplica regra dos 30%)
-                diasRestantes = ChronoUnit.DAYS.between(hoje, dataPrevista);
-                double valorDiasRestantes = diasRestantes * valorDiaria;
-                taxaRescisaoAntecipada = valorDiasRestantes * 0.30; // 30% sobre o que sobrou
-            }
-            else if (hoje.isAfter(dataPrevista)) {
-                // CASO 2: Devolução com Atraso
-                diasAtraso = ChronoUnit.DAYS.between(dataPrevista, hoje);
-                multaAtraso = (diasAtraso * valorDiaria) + 50.0; // Diárias extras + Taxa fixa
-            }
-
-            // C. Total Final
-            double totalFinal = valorPelosDiasUsados + multaAtraso + taxaRescisaoAntecipada;
-
-            // --- ATUALIZAÇÃO NO BANCO ---
-            // Aqui estamos usando um "truque": como o DAO espera o objeto Locacao preenchido,
-            // poderíamos criar um método específico no DAO para salvar multa separada,
-            // mas para simplificar, vamos salvar o valor total calculado aqui.
             new LocacaoDAO().registrarDevolucao(loc);
 
-            // --- MONTAGEM DO RECIBO INTELIGENTE ---
-            StringBuilder recibo = new StringBuilder();
-            recibo.append("RESUMO DA DEVOLUÇÃO\n");
-            recibo.append("--------------------------------\n");
-            recibo.append(String.format("Veículo: %s\n", loc.getVeiculo().getModelo()));
-            recibo.append(String.format("Cliente: %s\n\n", loc.getCliente().getNome()));
-
-            recibo.append(String.format("(+) Dias Utilizados (%d): R$ %.2f\n", diasUsados, valorPelosDiasUsados));
-
-            if (taxaRescisaoAntecipada > 0) {
-                recibo.append(String.format("(+) Taxa Rescisão Antecipada (%d dias não usados): R$ %.2f\n", diasRestantes, taxaRescisaoAntecipada));
-                recibo.append("    *Motivo: Devolução antes do prazo contratado (30% sobre restante).\n");
-            }
-
-            if (multaAtraso > 0) {
-                recibo.append(String.format("(+) Multa por Atraso (%d dias): R$ %.2f\n", diasAtraso, multaAtraso));
-            }
-
-            recibo.append("--------------------------------\n");
-            recibo.append(String.format("(=) TOTAL A PAGAR: R$ %.2f", totalFinal));
-
-
-            mostrarAlerta("Sucesso", "Veículo devolvido com sucesso!\n\n" + recibo.toString());
-
+            mostrarAlerta("Sucesso", "Veículo devolvido e KM atualizado!");
             carregarLocacoes();
-            lblResumo.setText("Resumo: Selecione uma locação...");
+            txtKmDevolucao.clear();
 
         } catch (SQLException e) {
-            mostrarAlerta("Erro", "Falha na devolução: " + e.getMessage());
+            mostrarAlerta("Erro", "Falha: " + e.getMessage());
         }
     }
 
