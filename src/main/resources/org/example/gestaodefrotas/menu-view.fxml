@@ -21,4 +21,5 @@
     <Button text="👥 Cadastrar Cliente" maxWidth="250" onAction="#irParaClientes" style="-fx-font-size: 14px;"/>
     <Button text="📝 Nova Locação" maxWidth="250" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px;" onAction="#irParaLocacao"/>
     <Button text="❌ Sair" maxWidth="250" onAction="#sair" style="-fx-background-color: #dc3545; -fx-text-fill: white;"/>
+    <Button text="Devolver Veículo" onAction="#onAbrirDevolucao" maxWidth="200" style="-fx-font-size: 14px; -fx-background-color: #dc3545; -fx-text-fill: white;" />
 </VBox>

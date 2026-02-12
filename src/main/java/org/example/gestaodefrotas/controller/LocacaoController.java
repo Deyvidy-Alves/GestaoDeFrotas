@@ -53,6 +53,13 @@ public class LocacaoController {
             if (cbCliente.getValue() == null) throw new Exception("Selecione um cliente");
             if (dtRetirada.getValue() == null || dtDevolucao.getValue() == null) throw new Exception("Selecione as datas");
 
+            Cliente cliente = cbCliente.getValue();
+
+            if (cliente.getCnhValidade().isBefore(LocalDate.now())) {
+                mostrarAlerta("Negado", "Cliente com CNH vencida! Renovação necessária.");
+                return; // Para tudo e não deixa salvar
+            }
+
             // Criação do objeto
             Locacao locacao = new Locacao(
                     cbVeiculo.getValue(),

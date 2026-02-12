@@ -31,6 +31,11 @@ public class MenuController {
         System.exit(0);
     }
 
+    @FXML
+    protected void onAbrirDevolucao(ActionEvent event) throws IOException {
+        trocarTela(event, "devolucao-view.fxml", "Devolução de Veículo");
+    }
+
     private void trocarTela(ActionEvent event, String nomeArquivoFxml, String titulo) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(nomeArquivoFxml));
