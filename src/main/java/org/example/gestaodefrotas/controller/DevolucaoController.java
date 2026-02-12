@@ -88,18 +88,75 @@ public class DevolucaoController {
             return;
         }
 
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataPrevista = loc.getDataDevolucaoPrevista();
+
+        // 1. Proteção contra data futura (Viagem no tempo)
+        if (hoje.isBefore(loc.getDataRetirada())) {
+            mostrarAlerta("Erro", "Impossível devolver! A data de retirada é no futuro (" + loc.getDataRetirada() + ").");
+            return;
+        }
+
         try {
+            double valorDiaria = loc.getVeiculo().getValorDiaria();
+
+            // --- CÁLCULOS DETALHADOS ---
+
+            // A. Dias Realmente Usados (Cobrança Normal)
+            long diasUsados = ChronoUnit.DAYS.between(loc.getDataRetirada(), hoje);
+            if (diasUsados == 0) diasUsados = 1; // Cobra pelo menos 1 dia se devolver no mesmo dia
+            double valorPelosDiasUsados = diasUsados * valorDiaria;
+
+            // B. Verificação de Antecipação ou Atraso
+            double multaAtraso = 0.0;
+            double taxaRescisaoAntecipada = 0.0;
+            long diasRestantes = 0;
+            long diasAtraso = 0;
+
+            if (hoje.isBefore(dataPrevista)) {
+                // CASO 1: Devolução Antecipada (Aplica regra dos 30%)
+                diasRestantes = ChronoUnit.DAYS.between(hoje, dataPrevista);
+                double valorDiasRestantes = diasRestantes * valorDiaria;
+                taxaRescisaoAntecipada = valorDiasRestantes * 0.30; // 30% sobre o que sobrou
+            }
+            else if (hoje.isAfter(dataPrevista)) {
+                // CASO 2: Devolução com Atraso
+                diasAtraso = ChronoUnit.DAYS.between(dataPrevista, hoje);
+                multaAtraso = (diasAtraso * valorDiaria) + 50.0; // Diárias extras + Taxa fixa
+            }
+
+            // C. Total Final
+            double totalFinal = valorPelosDiasUsados + multaAtraso + taxaRescisaoAntecipada;
+
+            // --- ATUALIZAÇÃO NO BANCO ---
+            // Aqui estamos usando um "truque": como o DAO espera o objeto Locacao preenchido,
+            // poderíamos criar um método específico no DAO para salvar multa separada,
+            // mas para simplificar, vamos salvar o valor total calculado aqui.
             new LocacaoDAO().registrarDevolucao(loc);
 
-            // --- CÁLCULO SÓ PARA MOSTRAR NA MENSAGEM ---
-            long dias = ChronoUnit.DAYS.between(loc.getDataRetirada(), LocalDate.now());
-            if (dias == 0) dias = 1;
-            double valorCobrado = dias * loc.getVeiculo().getValorDiaria();
-            // -------------------------------------------
+            // --- MONTAGEM DO RECIBO INTELIGENTE ---
+            StringBuilder recibo = new StringBuilder();
+            recibo.append("RESUMO DA DEVOLUÇÃO\n");
+            recibo.append("--------------------------------\n");
+            recibo.append(String.format("Veículo: %s\n", loc.getVeiculo().getModelo()));
+            recibo.append(String.format("Cliente: %s\n\n", loc.getCliente().getNome()));
 
-            mostrarAlerta("Sucesso",
-                    "Veículo devolvido!\n\n" +
-                            "Valor Final Calculado: R$ " + valorCobrado); // Mostra o valor no alerta
+            recibo.append(String.format("(+) Dias Utilizados (%d): R$ %.2f\n", diasUsados, valorPelosDiasUsados));
+
+            if (taxaRescisaoAntecipada > 0) {
+                recibo.append(String.format("(+) Taxa Rescisão Antecipada (%d dias não usados): R$ %.2f\n", diasRestantes, taxaRescisaoAntecipada));
+                recibo.append("    *Motivo: Devolução antes do prazo contratado (30% sobre restante).\n");
+            }
+
+            if (multaAtraso > 0) {
+                recibo.append(String.format("(+) Multa por Atraso (%d dias): R$ %.2f\n", diasAtraso, multaAtraso));
+            }
+
+            recibo.append("--------------------------------\n");
+            recibo.append(String.format("(=) TOTAL A PAGAR: R$ %.2f", totalFinal));
+
+
+            mostrarAlerta("Sucesso", "Veículo devolvido com sucesso!\n\n" + recibo.toString());
 
             carregarLocacoes();
             lblResumo.setText("Resumo: Selecione uma locação...");
