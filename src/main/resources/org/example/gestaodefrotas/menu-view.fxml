@@ -6,20 +6,35 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gestaodefrotas.controller.MenuController">
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gestaodefrotas.controller.MenuController">
+
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
     </padding>
 
-    <Label text="Gestão de Frota">
+    <Label text="Gestão de Frota" textFill="#333333">
         <font>
             <Font name="System Bold" size="24.0" />
         </font>
+        <VBox.margin>
+            <Insets bottom="15.0" />
+        </VBox.margin>
     </Label>
 
-    <Button text="🚗 Cadastrar Veículo" maxWidth="250" onAction="#irParaVeiculos" style="-fx-font-size: 14px;"/>
-    <Button text="👥 Cadastrar Cliente" maxWidth="250" onAction="#irParaClientes" style="-fx-font-size: 14px;"/>
-    <Button text="📝 Nova Locação" maxWidth="250" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px;" onAction="#irParaLocacao"/>
-    <Button text="❌ Sair" maxWidth="250" onAction="#sair" style="-fx-background-color: #dc3545; -fx-text-fill: white;"/>
-    <Button text="Devolver Veículo" onAction="#onAbrirDevolucao" maxWidth="200" style="-fx-font-size: 14px; -fx-background-color: #dc3545; -fx-text-fill: white;" />
+    <Button text="🚗 Cadastrar Veículo" onAction="#irParaVeiculos" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <Button text="👥 Cadastrar Cliente" onAction="#irParaClientes" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <Button text="📂 Gerenciar Frota (Editar/Excluir)" onAction="#irParaListaVeiculos" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" />
+
+    <Button text="📝 Nova Locação" onAction="#irParaLocacao" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <Button text="🔄 Devolver Veículo" onAction="#onAbrirDevolucao" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <Button text="📊 Relatórios Financeiros" onAction="#irParaRelatorios" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #17a2b8;; -fx-text-fill: white; -fx-font-weight: bold;" />
+
+    <Button text="🔧 Oficina / Manutenção" onAction="#onAbrirManutencao" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #343a40; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <Button text="❌ Sair" onAction="#sair" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
+
 </VBox>

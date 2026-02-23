@@ -21,6 +21,14 @@
 
     <Label fx:id="lblResumo" text="Resumo: Selecione uma locação..." textFill="#666666" wrapText="true"/>
 
+    <Separator prefWidth="200.0" />
+    <Label text="📋 Vistoria de Retorno" style="-fx-font-weight: bold;" />
+
+    <ComboBox fx:id="cbCombustivelRetorno" prefWidth="250.0" promptText="Nível de Combustível (Retorno)" />
+
+    <TextField fx:id="txtObsRetorno" prefWidth="250.0" promptText="Observações (ex: devolvido sujo, novo risco no parachoque...)" />
+    <Separator prefWidth="200.0" />
+
     <Button onAction="#onConfirmar" text="Confirmar Devolução e Calcular" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold;" />
 
     <Button onAction="#onVoltar" text="⬅ Voltar ao Menu" style="-fx-background-color: #6c757d; -fx-text-fill: white;" />

@@ -21,6 +21,16 @@
     <Label text="Previsão de Devolução:" />
     <DatePicker fx:id="dtDevolucao" maxWidth="Infinity" />
 
+    <Separator prefWidth="200.0" />
+
+    <Label text="📋 Vistoria de Retirada do Veículo" style="-fx-font-weight: bold; -fx-text-fill: #333333;" />
+
+    <ComboBox fx:id="cbCombustivel" prefWidth="250.0" promptText="Nível de Combustível" />
+
+    <TextField fx:id="txtObservacoes" prefWidth="250.0" promptText="Ex: Risco na porta direita, pneu estepe ausente..." />
+
+    <Separator prefWidth="200.0" />
+
     <Button onAction="#onSalvar" text="Confirmar Locação" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold;" />
     <Button onAction="#onVoltar" text="⬅ Voltar ao Menu" style="-fx-background-color: #6c757d; -fx-text-fill: white;" />
 </VBox>

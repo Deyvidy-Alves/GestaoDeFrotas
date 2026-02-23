@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gestaodefrotas.controller.ListaVeiculosController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <Label text="Gerenciamento de Frota">
+        <font>
+            <Font name="System Bold" size="22.0" />
+        </font>
+    </Label>
+
+    <TableView fx:id="tabelaVeiculos" prefHeight="300.0" prefWidth="600.0">
+        <columns>
+            <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+            <TableColumn fx:id="colModelo" prefWidth="150.0" text="Modelo" />
+            <TableColumn fx:id="colPlaca" prefWidth="100.0" text="Placa" />
+            <TableColumn fx:id="colKm" prefWidth="100.0" text="KM Atual" />
+            <TableColumn fx:id="colValor" prefWidth="100.0" text="Diária (R$)" />
+            <TableColumn fx:id="colStatus" prefWidth="100.0" text="Status" />
+        </columns>
+    </TableView>
+
+    <HBox spacing="15.0" alignment="CENTER">
+        <Button onAction="#onEditar" text="✏️ Editar Selecionado" style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-font-weight: bold;" prefWidth="150.0"/>
+        <Button onAction="#onExcluir" text="🗑️ Excluir" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold;" prefWidth="150.0"/>
+    </HBox>
+
+    <Button onAction="#onVoltar" text="⬅ Voltar ao Menu" style="-fx-background-color: #6c757d; -fx-text-fill: white;" prefWidth="200.0"/>
+</VBox>
