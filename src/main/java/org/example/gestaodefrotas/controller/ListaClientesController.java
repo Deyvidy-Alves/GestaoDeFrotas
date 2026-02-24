@@ -111,13 +111,33 @@ public class ListaClientesController {
     @FXML
     protected void onVoltar(ActionEvent event) {
         try {
+            // localiza o arquivo de design do menu principal
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
+
+            // identifica a janela atual onde o botao foi clicado
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // desliga o estado maximizado para que a janela nao aumente sozinha ao voltar
+            stage.setMaximized(false);
+
+            // gruda a cena do menu na janela
             stage.setScene(scene);
-            stage.setMaximized(true);
+
+            // estabelece a largura e altura padronizadas do sistema
+            stage.setWidth(850);
+            stage.setHeight(650);
+
+            // impede o usuario de redimensionar a janela manualmente
+            stage.setResizable(false);
+
+            // reposiciona a janela no centro do monitor
+            stage.centerOnScreen();
+
+            // exibe as alteracoes na tela
             stage.show();
         } catch (IOException e) {
+            // exibe o rastreio do erro caso o carregamento do fxml falhe
             e.printStackTrace();
         }
     }

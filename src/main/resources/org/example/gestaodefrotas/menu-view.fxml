@@ -8,7 +8,7 @@
 <VBox alignment="CENTER" spacing="12.0" style="-fx-background-color: #f4f6f9;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gestaodefrotas.controller.MenuController">
 
     <padding>
-        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+        <Insets bottom="30.0" left="80.0" right="80.0" top="30.0" />
     </padding>
 
     <Label text="Gestão de Frota e Locadora" textFill="#333333">
@@ -16,25 +16,25 @@
             <Font name="System Bold" size="24.0" />
         </font>
         <VBox.margin>
-            <Insets bottom="15.0" />
+            <Insets bottom="20.0" />
         </VBox.margin>
     </Label>
 
-    <Button onAction="#irParaVeiculos" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="🚗 Cadastrar Veículo" />
-    <Button onAction="#irParaListaVeiculos" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #0056b3; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="📂 Gerenciar Frota (Editar/Excluir)" />
+    <Button onAction="#irParaVeiculos" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="🚗 Cadastrar Veículo" />
+    <Button onAction="#irParaListaVeiculos" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #0056b3; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="📂 Gerenciar Frota" />
 
-    <Button onAction="#irParaClientes" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="👥 Cadastrar Cliente" />
-    <Button onAction="#irParaListaClientes" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #563d7c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="📋 Gerenciar Clientes (Editar/Excluir)" />
+    <Button onAction="#irParaClientes" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #6f42c1; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="👥 Cadastrar Cliente" />
+    <Button onAction="#irParaListaClientes" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #563d7c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="📋 Gerenciar Clientes" />
 
-    <Button onAction="#irParaLocacao" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="📝 Nova Locação" />
-    <Button onAction="#onAbrirDevolucao" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="🔄 Devolver Veículo" />
+    <Button onAction="#irParaLocacao" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="📝 Nova Locação" />
+    <Button onAction="#onAbrirDevolucao" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="🔄 Devolver Veículo" />
 
-    <Button onAction="#irParaRelatorios" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #343a40; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="📊 Relatórios Financeiros" />
-    <Button onAction="#onAbrirManutencao" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #495057; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="🔧 Oficina / Manutenção" />
+    <Button onAction="#irParaRelatorios" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #343a40; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="📊 Relatórios Financeiros" />
+    <Button onAction="#onAbrirManutencao" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #495057; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="🔧 Oficina / Manutenção" />
 
-    <Button onAction="#sair" prefHeight="45.0" prefWidth="280.0" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="❌ Sair do Sistema">
+    <Button onAction="#sair" prefHeight="45.0" prefWidth="260.0" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 8; -fx-cursor: hand;" text="❌ Sair do Sistema">
         <VBox.margin>
-            <Insets top="15.0" />
+            <Insets top="20.0" />
         </VBox.margin>
     </Button>
 </VBox>

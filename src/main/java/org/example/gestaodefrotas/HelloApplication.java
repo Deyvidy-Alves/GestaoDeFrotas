@@ -19,23 +19,36 @@ public class HelloApplication extends Application {
             if (conn != null) {
                 conn.close();
                 Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Teste de Banco");
+                alert.setTitle("teste de banco");
                 alert.setHeaderText(null);
-                alert.setContentText("SUCESSO! Conectado ao MySQL 'frotadb'.");
+                alert.setContentText("sucesso! conectado ao mysql 'frotadb'.");
                 alert.showAndWait();
             }
         } catch (Exception e) {
             Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Falha na Conexão");
-            alert.setHeaderText("Não foi possível conectar");
-            alert.setContentText("Erro: " + e.getMessage());
+            alert.setTitle("falha na conexão");
+            alert.setHeaderText("não foi possível conectar");
+            alert.setContentText("erro: " + e.getMessage());
             alert.showAndWait();
         }
 
+        // carrega o arquivo principal de interface
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Gestão de Frota");
+
+        // cria a cena com as dimensoes fixas de 850 por 650
+        Scene scene = new Scene(fxmlLoader.load(), 850, 650);
+
+        // configura as propriedades da janela principal
+        stage.setTitle("gestão de frota");
         stage.setScene(scene);
+
+        // trava o tamanho da janela para impedir o redimensionamento pelo usuario
+        stage.setResizable(false);
+
+        // desliga o estado maximizado do windows para manter o tamanho fixo
+        stage.setMaximized(false);
+
+        // exibe a janela na tela
         stage.show();
     }
 

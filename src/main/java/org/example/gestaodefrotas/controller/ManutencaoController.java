@@ -1,4 +1,3 @@
-// endereco da classe
 package org.example.gestaodefrotas.controller;
 
 import javafx.event.ActionEvent;
@@ -22,7 +21,7 @@ public class ManutencaoController {
     // conecta com aquela listinha simples onde clicamos nos carros quebrados
     @FXML private ListView<Veiculo> lvVeiculos;
 
-    // auto carregado
+    // executado automaticamente na abertura da tela
     @FXML
     public void initialize() {
         // vai no banco e pega a fila de conserto
@@ -31,14 +30,14 @@ public class ManutencaoController {
 
     private void carregarLista() {
         try {
-            // esvazia a fila pra nao dobrar
+            // esvazia a fila pra nao dobrar os itens na tela
             lvVeiculos.getItems().clear();
 
             // puxa do dao os carros em manutencao e empurra eles pra dentro do listview
             lvVeiculos.getItems().addAll(new VeiculoDAO().listarEmManutencao());
 
         } catch (SQLException e) {
-            // se o mysql chorar, a gente mostra a lagrima
+            // se o mysql der erro, a gente mostra a mensagem na tela
             mostrarAlerta("erro", "falha ao buscar veículos na oficina: " + e.getMessage());
         }
     }
@@ -46,53 +45,59 @@ public class ManutencaoController {
     // o botao verde de "carro consertado"
     @FXML
     protected void onLiberar() {
-        // passo 1: ve em qual carro da lista o mouse do mecanico deu um clique
+        // ve em qual carro da lista o mouse do mecanico deu um clique
         Veiculo veiculoSelecionado = lvVeiculos.getSelectionModel().getSelectedItem();
 
-        // passo 2: se ele for ansioso e clicar antes de selecionar
+        // protecao caso o usuario clique sem selecionar ninguem
         if (veiculoSelecionado == null) {
             mostrarAlerta("aviso", "selecione um veículo na lista primeiro.");
-            return; // expulsa o java daqui e nao tenta gravar null no banco
+            return;
         }
 
         try {
-            // passo 3: avisa o veiculodao pra fazer update status = disponivel la no banco de dados
-            new VeiculoDAO().finalizarManutencao(veiculoSelecionado);
+            // o ajuste mestre! passamos apenas o id para o dao resetar o ciclo de revisao
+            // isso resolve o erro de 'cannot find symbol' que estava dando na build
+            new VeiculoDAO().finalizarManutencao(veiculoSelecionado.getId());
 
-            // passo 4: festa!
-            mostrarAlerta("sucesso", "o veículo " + veiculoSelecionado.getModelo() + " foi liberado e já está disponível para locação!");
+            // confirma o sucesso
+            mostrarAlerta("sucesso", "o veículo " + veiculoSelecionado.getModelo() + " foi liberado para locação!");
 
-            // passo 5: atualiza a fila. o carro que foi consertado some misteriosamente da tela
+            // atualiza a fila para o carro sumir da oficina
             carregarLista();
 
         } catch (SQLException e) {
-            // erro de conexao ou de sql
+            // trata erros de conexao com o banco
             mostrarAlerta("erro", "erro ao tentar liberar o veículo: " + e.getMessage());
         }
     }
 
-    // de volta a nave mae
+    // volta para o menu inicial travando o tamanho da janela
     @FXML
     protected void onVoltar(ActionEvent event) {
         try {
-            // busca o molde
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
 
-            // pega a janela
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // gruda
+
+            // aplica a trava de 850x650 que combinamos para a tela nao pular
             stage.setScene(scene);
+            stage.setWidth(850);
+            stage.setHeight(650);
+            stage.setResizable(false);
+            stage.centerOnScreen();
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // caixinha basica
+    // componente de mensagem popup para o usuario
     private void mostrarAlerta(String titulo, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
+        alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
     }

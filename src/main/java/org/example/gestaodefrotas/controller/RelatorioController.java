@@ -29,7 +29,7 @@ public class RelatorioController {
             double total = new LocacaoDAO().calcularFaturamentoTotal();
 
             // converte o que era um "1200.5" solto e sem graca para um lindo "r$ 1.200,50" e joga na tela
-            lblFaturamento.setText(String.format("r$ %.2f", total));
+            lblFaturamento.setText(String.format("R$ %.2f", total));
 
         } catch (SQLException e) {
             // se o banco nao responder, mostra mensagem generica de erro em vez do valor
@@ -41,14 +41,20 @@ public class RelatorioController {
     @FXML
     protected void onVoltar(ActionEvent event) {
         try {
-            // pega a visao do menu
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-
-            // pega o palco
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // pendura a visao do menu no palco
+
+            // reseta o estado da janela para impedir o pulo visual
+            stage.setMaximized(false);
             stage.setScene(scene);
+
+            // trava as dimensoes cravadas que voce definiu
+            stage.setWidth(850);
+            stage.setHeight(650);
+            stage.setResizable(false);
+            stage.centerOnScreen();
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
