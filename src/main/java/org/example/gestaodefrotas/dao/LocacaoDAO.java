@@ -7,6 +7,7 @@ import java.util.List;
 
 public class LocacaoDAO {
 
+    // grava o contrato inicial no banco de dados e avisa que o veiculo foi alugado
     public int salvarERetornarId(Locacao locacao) throws SQLException {
         String sqlLocacao = "INSERT INTO locacoes (veiculo_id, cliente_id, data_retirada, data_prevista_devolucao) VALUES (?, ?, ?, ?)";
         String sqlUpdateVeiculo = "UPDATE veiculos SET status = 'ALUGADO' WHERE id = ?";
@@ -15,6 +16,8 @@ public class LocacaoDAO {
             conn.setAutoCommit(false);
             try {
                 int idGerado = 0;
+
+                // insere a locacao e pede pro mysql devolver qual foi o id criado
                 try (PreparedStatement stmt = conn.prepareStatement(sqlLocacao, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setInt(1, locacao.getVeiculo().getId());
                     stmt.setInt(2, locacao.getCliente().getId());
@@ -27,6 +30,7 @@ public class LocacaoDAO {
                     }
                 }
 
+                // muda o status do carro na frota para alugado
                 try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateVeiculo)) {
                     stmt.setInt(1, locacao.getVeiculo().getId());
                     stmt.execute();
@@ -41,6 +45,7 @@ public class LocacaoDAO {
         }
     }
 
+    // aqui esta a regra que bloqueia o carro para manutencao e deixa ele indisponivel
     public void registrarDevolucao(Locacao loc) throws SQLException {
         String sqlUpdateLocacao = "UPDATE locacoes SET data_real_devolucao = ?, valor_total = ? WHERE id = ?";
         String sqlUpdateVeiculo = "UPDATE veiculos SET status = ?, km_atual = ? WHERE id = ?";
@@ -48,6 +53,8 @@ public class LocacaoDAO {
         try (Connection conn = ConexaoDB.conectar()) {
             conn.setAutoCommit(false);
             try {
+
+                // atualiza a tabela de contratos finalizando a locacao com o valor final pago
                 try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateLocacao)) {
                     stmt.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
                     stmt.setDouble(2, loc.getValorTotal());
@@ -55,18 +62,22 @@ public class LocacaoDAO {
                     stmt.execute();
                 }
 
-                // aqui esta a distinção que voce pediu: 1.000 para motos e 10.000 para carros ---
+                // polimorfismo que decide qual e a quilometragem limite daquele objeto
                 int limiteManutencao = (loc.getVeiculo() instanceof Moto) ? 1000 : 10000;
 
                 int kmNovo = loc.getVeiculo().getKm();
                 int kmUltimaRevisao = loc.getVeiculo().getKmUltimaRevisao();
 
+                // o veiculo comeca ganhando o beneficio da duvida recebendo disponivel
                 String novoStatus = "DISPONIVEL";
-                // se a moto rodou mais de 1.000km desde a ultima oficina, trava em manutencao
+
+                // calculo que verifica se a cota de uso estourou
+                // se estourou a variavel perde o texto disponivel e ganha o texto manutencao
                 if ((kmNovo - kmUltimaRevisao) >= limiteManutencao) {
                     novoStatus = "MANUTENCAO";
                 }
 
+                // salva o status definitivo e a quilometragem atualizada na tabela de veiculos
                 try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateVeiculo)) {
                     stmt.setString(1, novoStatus);
                     stmt.setInt(2, kmNovo);
@@ -82,6 +93,7 @@ public class LocacaoDAO {
         }
     }
 
+    // varre o banco atras de locacoes que ainda nao tem data de devolucao registrada
     public List<Locacao> listarEmAberto() throws SQLException {
         List<Locacao> lista = new ArrayList<>();
         String sql = "SELECT l.id AS locacao_id, l.data_retirada, l.data_prevista_devolucao, v.id AS veiculo_id, v.modelo, v.placa, v.valor_diaria, v.km_atual, v.tipo, v.km_ultima_revisao, c.id AS cliente_id, c.nome FROM locacoes l INNER JOIN veiculos v ON l.veiculo_id = v.id INNER JOIN clientes c ON l.cliente_id = c.id WHERE l.data_real_devolucao IS NULL";
@@ -90,7 +102,16 @@ public class LocacaoDAO {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                Veiculo v = "MOTO".equals(rs.getString("tipo")) ? new Moto() : new Carro();
+
+                // recria o objeto veiculo correto baseado no texto armazenado ignorando letras maiusculas e minusculas
+                String tipoVeiculo = rs.getString("tipo");
+                Veiculo v;
+                if (tipoVeiculo != null && tipoVeiculo.trim().equalsIgnoreCase("MOTO")) {
+                    v = new Moto();
+                } else {
+                    v = new Carro();
+                }
+
                 v.setId(rs.getInt("veiculo_id"));
                 v.setModelo(rs.getString("modelo"));
                 v.setPlaca(rs.getString("placa"));
@@ -109,8 +130,8 @@ public class LocacaoDAO {
         return lista;
     }
 
+    // realiza a soma matematica de todos os alugueis ja devolvidos
     public double calcularFaturamentoTotal() throws SQLException {
-        // soma apenas os valores positivos ja recebidos (devolucoes concluidas)
         String sql = "SELECT SUM(valor_total) AS total FROM locacoes WHERE data_real_devolucao IS NOT NULL";
         try (Connection conn = ConexaoDB.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -120,5 +141,4 @@ public class LocacaoDAO {
         }
         return 0.0;
     }
-
 }

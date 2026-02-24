@@ -11,6 +11,7 @@ import org.example.gestaodefrotas.HelloApplication;
 import org.example.gestaodefrotas.dao.LocacaoDAO;
 import org.example.gestaodefrotas.dao.VistoriaDAO;
 import org.example.gestaodefrotas.model.Locacao;
+import org.example.gestaodefrotas.model.Moto;
 import org.example.gestaodefrotas.model.Vistoria;
 
 import java.io.IOException;
@@ -174,7 +175,15 @@ public class DevolucaoController {
                 new VistoriaDAO().salvar(vis);
                 new LocacaoDAO().registrarDevolucao(loc);
 
-                mostrarAlerta("sucesso", "devolução registrada com sucesso!");
+                int limite = (loc.getVeiculo() instanceof Moto) ? 1000 : 10000;
+                int delta = kmDevolucao - loc.getVeiculo().getKmUltimaRevisao();
+
+                if (delta >= limite) {
+                    mostrarAlerta("Alerta de Frota", "Devolução registrada! O veículo rodou " + delta + " km e foi bloqueado automaticamente para MANUTENÇÃO.");
+                } else {
+                    mostrarAlerta("Sucesso", "Devolução registrada! O veículo rodou apenas " + delta + " km e continua DISPONÍVEL para locação.");
+                }
+
                 limparFormulario();
                 carregarLocacoes();
             }
