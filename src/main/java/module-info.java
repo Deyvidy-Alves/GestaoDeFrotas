@@ -15,6 +15,7 @@ module org.example.gestaodefrotas {
     requires javafx.base;
     // exige o modulo grafico do javafx para renderizar as telas
     requires javafx.graphics;
+    requires jdk.jdi;
 
     // abre o pacote principal para o javafx fxml poder ler e iniciar a aplicacao
     opens org.example.gestaodefrotas to javafx.fxml;

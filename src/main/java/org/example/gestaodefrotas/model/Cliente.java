@@ -18,6 +18,8 @@ public class Cliente {
     private LocalDate cnhValidade;
     // atributo privado para o numero de telefone
     private String telefone;
+    // atributo privado para o status de atividade (soft delete)
+    private String status;
 
     // construtor da classe: metodo especial chamado quando criamos um cliente novo (usando 'new cliente')
     public Cliente(String nome, String cpf, String cnhNumero, LocalDate cnhValidade, String telefone) {
@@ -31,25 +33,30 @@ public class Cliente {
         this.cnhValidade = cnhValidade;
         // salva o telefone
         this.telefone = telefone;
+        // seta o status inicial ativo
+        this.status = "ATIVO";
     }
 
-    // metodo que devolve o id do cliente
+    // getters (para ler os dados)
     public int getId(){ return id; }
-    // metodo que permite alterar o id do cliente (geralmente usado apos salvar no banco)
-    public void setId(int id) { this.id = id; }
-
-    // metodo que devolve o nome do cliente
     public String getNome() { return nome; }
-    // metodo que devolve o cpf do cliente
     public String getCpf() { return cpf; }
-    // metodo que devolve o numero da cnh
     public String getCnhNumero() { return cnhNumero; }
-    // metodo que devolve a validade da cnh no formato original localdate
     public LocalDate getCnhValidade() { return cnhValidade; }
-    // metodo que devolve o telefone do cliente
     public String getTelefone() { return telefone; }
+    public String getStatus() { return status; }
+
     // metodo utilitario que converte o localdate para o formato de data que o banco sql entende
     public java.sql.Date getCnhValidadeSQL() { return java.sql.Date.valueOf(cnhValidade); }
+
+    // setters (para alterar os dados na tela de edicao e banco)
+    public void setId(int id) { this.id = id; }
+    public void setNome(String nome) { this.nome = nome; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+    public void setCnhNumero(String cnhNumero) { this.cnhNumero = cnhNumero; }
+    public void setCnhValidade(LocalDate cnhValidade) { this.cnhValidade = cnhValidade; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+    public void setStatus(String status) { this.status = status; }
 
     // sobrescreve o metodo padrao que transforma o objeto em texto
     @Override

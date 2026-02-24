@@ -25,7 +25,7 @@
 
     <Button text="👥 Cadastrar Cliente" onAction="#irParaClientes" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
 
-    <Button text="📂 Gerenciar Frota (Editar/Excluir)" onAction="#irParaListaVeiculos" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold;" />
+    <Button text="📂 Gerenciar Frota (Editar/Excluir)" onAction="#irParaListaVeiculos" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
 
     <Button text="📝 Nova Locação" onAction="#irParaLocacao" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" />
 

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
@@ -16,10 +15,14 @@
         </font>
     </Label>
 
-    <TextField fx:id="txtModelo" promptText="Modelo (Ex: Fiat Uno)" />
-    <TextField fx:id="txtPlaca" promptText="Placa (Ex: ABC-1234)" />
-    <TextField fx:id="txtKm" promptText="KM Atual (Apenas números)" />
-    <TextField fx:id="txtValor" promptText="Valor Diária (Ex: 100.00)" />
+    <ComboBox fx:id="cbTipo" prefWidth="250.0" promptText="Selecione: Carro ou Moto" />
+
+    <TextField fx:id="txtModelo" promptText="Modelo (Ex: Fiat Uno / Fazer FZ25)" maxWidth="250.0" />
+    <TextField fx:id="txtPlaca" promptText="Placa (Ex: ABC-1234)" maxWidth="250.0"/>
+    <TextField fx:id="txtKm" promptText="KM Atual (Apenas números)" maxWidth="250.0"/>
+    <TextField fx:id="txtValor" promptText="Valor Diária (Ex: 100.00)" maxWidth="250.0"/>
+
+    <TextField fx:id="txtDetalhe" promptText="Portas (Carro) ou Cilindradas (Moto)" maxWidth="250.0"/>
 
     <Button onAction="#onSalvar" text="Confirmar Operação" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="200.0"/>
     <Button onAction="#onVoltar" text="⬅ Voltar ao Menu" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-cursor: hand;" prefWidth="200.0"/>

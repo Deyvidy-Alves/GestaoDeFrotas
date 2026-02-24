@@ -1,7 +1,5 @@
-// define o pacote onde o arquivo esta guardado
 package org.example.gestaodefrotas.controller;
 
-// importacoes necessarias para a interface grafica funcionar
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,92 +9,97 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-// importacoes do nosso proprio sistema
 import org.example.gestaodefrotas.HelloApplication;
 import org.example.gestaodefrotas.dao.ClienteDAO;
 import org.example.gestaodefrotas.model.Cliente;
 
-// importacao padrao de excecoes de entrada e saida
 import java.io.IOException;
 
-// classe responsavel por dar vida a tela de cadastro de cliente
 public class CadastroClienteController {
-    // mapeia a caixa de texto do nome que esta desenhada no fxml
     @FXML private TextField txtNome;
-    // mapeia a caixa de texto do cpf
     @FXML private TextField txtCpf;
-    // mapeia a caixa de texto da cnh
     @FXML private TextField txtCnh;
-    // mapeia o calendario visual para escolher a data de validade da cnh
     @FXML private DatePicker dtValidade;
-    // mapeia a caixa de texto do telefone
     @FXML private TextField txtTelefone;
 
-    // metodo que e ativado quando o usuario clica no botao "salvar cliente"
+    // variavel que guarda o cliente se a tela for aberta pelo botao de editar
+    private Cliente clienteEmEdicao = null;
+
+    // metodo chamado pela tela de listagem para injetar o cliente aqui dentro
+    public void prepararEdicao(Cliente c) {
+        this.clienteEmEdicao = c;
+        // preenche as caixas de texto com os dados antigos para o usuario ver o que esta alterando
+        txtNome.setText(c.getNome());
+        txtCpf.setText(c.getCpf());
+        txtCnh.setText(c.getCnhNumero());
+        dtValidade.setValue(c.getCnhValidade());
+        txtTelefone.setText(c.getTelefone());
+    }
+
     @FXML
     protected void onSalvar() {
         try {
-            // le todos os textos digitados na tela e ja cria um objeto cliente novo na memoria
-            Cliente c = new Cliente(
-                    txtNome.getText(),
-                    txtCpf.getText(),
-                    txtCnh.getText(),
-                    dtValidade.getValue(), // getValue pega a data formato localdate
-                    txtTelefone.getText()
-            );
+            ClienteDAO dao = new ClienteDAO();
 
-            // chama a classe dao, abre a conexao com banco, grava o cliente e fecha
-            new ClienteDAO().salvar(c);
+            if (clienteEmEdicao == null) {
+                // fluxo de cadastro novo
+                Cliente novoCliente = new Cliente(
+                        txtNome.getText(),
+                        txtCpf.getText(),
+                        txtCnh.getText(),
+                        dtValidade.getValue(),
+                        txtTelefone.getText()
+                );
+                dao.salvar(novoCliente);
+                mostrarAlerta("sucesso", "cliente cadastrado!");
+            } else {
+                // fluxo de edicao: atualiza o objeto que ja existia na memoria
+                clienteEmEdicao.setNome(txtNome.getText());
+                clienteEmEdicao.setCpf(txtCpf.getText());
+                clienteEmEdicao.setCnhNumero(txtCnh.getText());
+                clienteEmEdicao.setCnhValidade(dtValidade.getValue());
+                clienteEmEdicao.setTelefone(txtTelefone.getText());
 
-            // avisa que o cadastro deu certo
-            mostrarAlerta("sucesso", "cliente cadastrado!");
-            // apaga os textos da tela para poder cadastrar o proximo
+                // manda o dao dar o update no banco
+                dao.atualizar(clienteEmEdicao);
+                mostrarAlerta("sucesso", "cliente atualizado com sucesso!");
+
+                // limpa a memoria para a tela voltar ao normal na proxima vez
+                clienteEmEdicao = null;
+            }
+
             limpar();
         } catch (Exception e) {
-            // se der algum erro de banco (ex: cpf repetido), avisa o usuario
             mostrarAlerta("erro", "erro ao salvar: " + e.getMessage());
         }
     }
 
-    // metodo do botao "voltar" para retornar a tela inicial
     @FXML
     protected void onVoltar(ActionEvent event) {
         try {
-            // carrega o desenho da tela do menu
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-
-            // descobre qual janela o usuario esta usando
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // altera o titulo da janela no topo
             stage.setTitle("gestão de frota");
-            // coloca a cena do menu dentro da janela
             stage.setScene(scene);
-            // mostra na tela
             stage.show();
         } catch (IOException e) {
-            // cospe o erro no terminal se nao achar o arquivo do menu
             e.printStackTrace();
         }
     }
 
-    // metodo ajudante para mostrar avisos pop-up na tela
     private void mostrarAlerta(String titulo, String msg) {
-        // cria um alerta do tipo informacao
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
         alert.setContentText(msg);
-        // trava o uso do programa ate o usuario fechar o aviso
         alert.showAndWait();
     }
 
-    // metodo que esvazia todas as caixas de texto apos um salvamento
     private void limpar() {
         txtNome.clear();
         txtCpf.clear();
         txtCnh.clear();
         txtTelefone.clear();
-        // zera a data
         dtValidade.setValue(null);
     }
 }

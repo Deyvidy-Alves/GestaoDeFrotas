@@ -9,8 +9,8 @@
 
     <Label text="Nova Locação"><font><Font name="System Bold" size="18.0" /></font></Label>
 
-    <Label text="Selecione o Veículo (Apenas Disponíveis):" />
-    <ComboBox fx:id="cbVeiculo" maxWidth="Infinity" promptText="-- Escolha o Carro --"/>
+    <Label text="Selecione o Veículo (Carro ou Moto):" />
+    <ComboBox fx:id="cbVeiculo" maxWidth="Infinity" promptText="-- Escolha o Veículo --"/>
 
     <Label text="Selecione o Cliente:" />
     <ComboBox fx:id="cbCliente" maxWidth="Infinity" promptText="-- Escolha o Cliente --"/>
@@ -27,7 +27,7 @@
 
     <ComboBox fx:id="cbCombustivel" prefWidth="250.0" promptText="Nível de Combustível" />
 
-    <TextField fx:id="txtObservacoes" prefWidth="250.0" promptText="Ex: Risco na porta direita, pneu estepe ausente..." />
+    <TextField fx:id="txtObservacoes" prefWidth="250.0" promptText="Ex: Risco na porta, retrovisor arranhado..." />
 
     <Separator prefWidth="200.0" />
 

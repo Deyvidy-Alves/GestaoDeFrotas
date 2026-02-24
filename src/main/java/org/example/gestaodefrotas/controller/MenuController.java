@@ -60,6 +60,11 @@ public class MenuController {
         System.exit(0);
     }
 
+    @FXML
+    protected void irParaListaClientes(ActionEvent event) {
+        trocarTela(event, "lista-clientes-view.fxml", "gerenciar clientes");
+    }
+
     // essa aqui é a engrenagem mestre que criamos hoje cedo pra resolver os seus erros de 'location is not set'
     private void trocarTela(ActionEvent event, String nomeArquivoFxml, String titulo) {
         try {
@@ -93,4 +98,5 @@ public class MenuController {
             e.printStackTrace();
         }
     }
+
 }
