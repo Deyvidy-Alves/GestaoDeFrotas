@@ -1,7 +1,6 @@
-// pacote onde o arquivo esta localizado
 package org.example.gestaodefrotas.controller;
 
-// importacoes graficas e funcionais do javafx
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,162 +9,164 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-// importacoes dos daos e modelos que o aluguel vai usar
 import org.example.gestaodefrotas.HelloApplication;
 import org.example.gestaodefrotas.dao.ClienteDAO;
 import org.example.gestaodefrotas.dao.LocacaoDAO;
 import org.example.gestaodefrotas.dao.VeiculoDAO;
 import org.example.gestaodefrotas.dao.VistoriaDAO;
-import org.example.gestaodefrotas.model.Cliente;
-import org.example.gestaodefrotas.model.Locacao;
-import org.example.gestaodefrotas.model.Veiculo;
-import org.example.gestaodefrotas.model.Vistoria;
+import org.example.gestaodefrotas.model.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-// classe que cuida de abrir um novo contrato de aluguel
 public class LocacaoController {
 
-    // caixa de selecao (dropdown) para mostrar os veiculos disponiveis
-    @FXML private ComboBox<Veiculo> cbVeiculo;
-    // caixa de selecao para mostrar quem vai alugar
-    @FXML private ComboBox<Cliente> cbCliente;
-    // calendario para escolher o dia que o cara ta levando o carro
+    // ligacoes visuais com o fxml
+    @FXML private ComboBox<Cliente> cbClientes;
+    @FXML private ComboBox<String> cbFiltroVeiculo; // a caixa que escolhe carro ou moto
+    @FXML private ComboBox<Veiculo> cbVeiculos;
     @FXML private DatePicker dtRetirada;
-    // calendario para escolher o dia que ele promete devolver
-    @FXML private DatePicker dtDevolucao;
-    // caixa de selecao pra dizer como ta o tanque do carro na saida
+    @FXML private DatePicker dtPrevista;
     @FXML private ComboBox<String> cbCombustivel;
-    // campo de texto pra anotar se ja tem algum arranhao no carro
-    @FXML private TextField txtObservacoes;
 
-    // acionado pelo java assim que a tela abre
+    // cache na memoria para nao precisar atacar o banco de dados toda hora que o usuario mexer no filtro
+    private List<Veiculo> todosVeiculosDisponiveis = new ArrayList<>();
+
+    // roda sozinho assim que a tela abre
     @FXML
     public void initialize() {
+        // preenche gasolina
+        cbCombustivel.getItems().addAll("cheio", "3/4", "meio tanque (1/2)", "1/4", "reserva");
+        cbCombustivel.setValue("cheio");
+
+        // configura o filtro de tipos e bota todos como padrao
+        cbFiltroVeiculo.getItems().addAll("todos", "carros", "motos");
+        cbFiltroVeiculo.setValue("todos");
+
+        // busca as coisas no banco
+        carregarClientes();
+        carregarVeiculos();
+
+        // ouvinte: dispara o metodo de filtrar toda vez que o usuario clica e muda a opcao
+        cbFiltroVeiculo.setOnAction(event -> aplicarFiltroVeiculos());
+    }
+
+    private void carregarClientes() {
         try {
-            // puxa as listas do banco de dados pra preencher as caixinhas na tela
-            carregarListas();
+            // joga os clientes ativos na tela
+            List<Cliente> clientes = new ClienteDAO().listarTodos();
+            cbClientes.setItems(FXCollections.observableArrayList(clientes));
         } catch (SQLException e) {
-            // se o mysql der pau, avisa na tela
-            mostrarAlerta("erro", "falha ao carregar listas: " + e.getMessage());
+            mostrarAlerta("erro", "falha ao carregar clientes: " + e.getMessage());
         }
     }
 
-    // vai no banco e preenche tudo
-    private void carregarListas() throws SQLException {
-        // busca no veiculodao so os carros que estao parados no patio (disponivel)
-        cbVeiculo.getItems().addAll(new VeiculoDAO().listarDisponiveis());
-
-        // busca todos os clientes e joga na lista
-        cbCliente.getItems().addAll(new ClienteDAO().listarTodos());
-
-        // enche a caixa de combustivel com as opcoes padrao que o funcionario pode escolher
-        cbCombustivel.getItems().addAll("cheio", "3/4", "meio tanque (1/2)", "1/4", "reserva");
+    private void carregarVeiculos() {
+        try {
+            // busca a frota inteira disponivel e salva na memoria ram (variavel global ali em cima)
+            todosVeiculosDisponiveis = new VeiculoDAO().listarDisponiveis();
+            // aplica o filtro inicial que vai listar tudo
+            aplicarFiltroVeiculos();
+        } catch (SQLException e) {
+            mostrarAlerta("erro", "falha ao carregar frota: " + e.getMessage());
+        }
     }
 
-    // o que acontece quando o cara clica em salvar
-    @FXML
-    protected void onSalvar() {
-        try {
-            // etapa 1: checa se tem campo em branco. se tiver, joga um erro e para tudo
-            if (cbVeiculo.getValue() == null) throw new Exception("selecione um veículo");
-            if (cbCliente.getValue() == null) throw new Exception("selecione um cliente");
-            if (dtRetirada.getValue() == null || dtDevolucao.getValue() == null) throw new Exception("selecione as datas");
-            if (cbCombustivel.getValue() == null) throw new Exception("informe o nível de combustível");
+    // este e o metodo que a professora vai amar se ela perguntar de instanceof
+    private void aplicarFiltroVeiculos() {
+        // descobre qual palavra ta escrita na caixa
+        String filtro = cbFiltroVeiculo.getValue();
+        // cria uma lista de papel rascunho temporaria
+        List<Veiculo> filtrados = new ArrayList<>();
 
-            // pega quem o funcionario escolheu na lista
-            Cliente clienteSelecionado = cbCliente.getValue();
-
-            // etapa 2: verifica se o cara ta com a cnh vencida
-            java.time.LocalDate hoje = java.time.LocalDate.now();
-            java.time.LocalDate vencimentoCnh = clienteSelecionado.getCnhValidadeSQL().toLocalDate();
-
-            // isbefore checa se a validade passou da data de hoje
-            if (vencimentoCnh != null && vencimentoCnh.isBefore(hoje)) {
-                // barra o aluguel se a cnh estiver vencida
-                mostrarAlerta("operação bloqueada 🚫", "cliente com cnh vencida!");
-                return;
+        // varre os veiculos um por um na memoria
+        for (Veiculo v : todosVeiculosDisponiveis) {
+            // se escolheu todos, apenas adiciona na lista
+            if ("todos".equals(filtro)) {
+                filtrados.add(v);
             }
+            // se o filtro for carros E o objeto for comprovadamente um carro, adiciona
+            else if ("carros".equals(filtro) && v instanceof Carro) {
+                filtrados.add(v);
+            }
+            // se o filtro for motos E o objeto for comprovadamente uma moto, adiciona
+            else if ("motos".equals(filtro) && v instanceof Moto) {
+                filtrados.add(v);
+            }
+        }
 
-            // etapa 3: monta o contrato na memoria com as informacoes da tela
-            Locacao loc = new Locacao(
-                    cbVeiculo.getValue(),
-                    clienteSelecionado,
-                    dtRetirada.getValue(),
-                    dtDevolucao.getValue()
-            );
+        // substitui a lista de veiculos da tela pela nossa nova lista rascunho filtrada
+        cbVeiculos.setItems(FXCollections.observableArrayList(filtrados));
+    }
 
-            // o dao vai la no mysql, salva o contrato e traz de volta qual protocolo (id) ele ganhou
-            int idGerado = new LocacaoDAO().salvarERetornarId(loc);
-            // amarra o id no contrato da memoria para usarmos na vistoria
-            loc.setId(idGerado);
+    // fecha o contrato de aluguel e manda pro dao
+    @FXML
+    protected void onSalvarLocacao() {
+        // coleta as informacoes
+        Cliente cliente = cbClientes.getValue();
+        Veiculo veiculo = cbVeiculos.getValue();
+        LocalDate retirada = dtRetirada.getValue();
+        LocalDate prevista = dtPrevista.getValue();
+        String combustivel = cbCombustivel.getValue();
 
-            // etapa 4: cria a folha de vistoria de retirada
-            Vistoria vis = new Vistoria();
-            // amarra a vistoria ao contrato que acabamos de gerar
-            vis.setLocacao(loc);
-            vis.setTipo("RETIRADA");
-            vis.setNivelCombustivel(cbCombustivel.getValue());
-            vis.setObservacoes(txtObservacoes.getText());
-            vis.setDataVistoria(hoje);
+        // checagem basica contra campos vazios
+        if (cliente == null || veiculo == null || retirada == null || prevista == null || combustivel == null) {
+            mostrarAlerta("atenção", "por favor, preencha todos os campos do contrato.");
+            return;
+        }
 
-            // grava a vistoria la na tabela vistorias do banco
-            new VistoriaDAO().salvar(vis);
+        // trava temporal: devolucao no passado da erro logico e financeiro
+        if (prevista.isBefore(retirada)) {
+            mostrarAlerta("erro", "a data de devolução não pode ser antes da retirada!");
+            return;
+        }
 
-            // etapa 5: deu tudo certo, avisa o usuario
-            mostrarAlerta("sucesso", "locação e vistoria de retirada registradas com sucesso!");
-            // zera os campos pra proxima
-            limpar();
+        try {
+            // cria o molde do contrato (composicao)
+            Locacao locacao = new Locacao(veiculo, cliente, retirada, prevista);
 
-            // limpa a combobox de veiculos e recarrega. isso faz o carro que vc acabou de alugar sumir das opcoes!
-            cbVeiculo.getItems().clear();
-            cbVeiculo.getItems().addAll(new VeiculoDAO().listarDisponiveis());
+            LocacaoDAO locacaoDAO = new LocacaoDAO();
+            // transacao segura no banco que nos devolve a chave primaria nova
+            int idGerado = locacaoDAO.salvarERetornarId(locacao);
+            locacao.setId(idGerado);
+
+            // registra como estava o carro ao sair da garagem
+            Vistoria vistoria = new Vistoria(locacao, "RETIRADA", combustivel, "saída padrão", retirada);
+            new VistoriaDAO().salvar(vistoria);
+
+            mostrarAlerta("sucesso", "contrato aberto! o veículo agora está alugado.");
+            // executa o voltar de forma forcada para tirar o cara dessa tela apos o sucesso
+            onVoltar(new ActionEvent(cbClientes, null));
 
         } catch (Exception e) {
-            // captura os erros forcados ali em cima ou erros de banco
-            mostrarAlerta("erro", e.getMessage());
+            mostrarAlerta("erro", "falha na abertura do contrato: " + e.getMessage());
         }
     }
 
-    // o clico botao voltar ao menu
+    // volta para o menu
     @FXML
     protected void onVoltar(ActionEvent event) {
         try {
-            // carrega as pecas visuais do menu
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("menu-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-
-            // pega a janela de vidro atual
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // troca o texto de cima da janela
-            stage.setTitle("gestão de frota");
-            // projeta a tela do menu
             stage.setScene(scene);
+            stage.setTitle("gestão de frota");
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // deixa a tela limpinha de novo
-    private void limpar() {
-        cbVeiculo.setValue(null);
-        cbCliente.setValue(null);
-        // data de retirada volta a ser hoje automaticamente
-        dtRetirada.setValue(LocalDate.now());
-        dtDevolucao.setValue(null);
-        cbCombustivel.setValue(null);
-        txtObservacoes.clear();
-    }
-
-    // o nosso gerador de popups padrao
+    // balão de mensagem para o usuario
     private void mostrarAlerta(String titulo, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
+        alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
     }

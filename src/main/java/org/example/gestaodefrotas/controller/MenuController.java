@@ -21,8 +21,20 @@ public class MenuController {
     }
 
     @FXML
+    protected void irParaListaVeiculos(ActionEvent event) {
+        // tela que arrumamos hj mais cedo
+        trocarTela(event, "lista-veiculos-view.fxml", "gerenciar frota");
+    }
+
+    @FXML
     protected void irParaClientes(ActionEvent event) {
         trocarTela(event, "cadastro-cliente-view.fxml", "novo cliente");
+    }
+
+    @FXML
+    protected void irParaListaClientes(ActionEvent event) {
+        // AQUI ESTAVA O ERRO DE DUPLICACAO! Agora existe apenas um, usando a engrenagem correta.
+        trocarTela(event, "lista-clientes-view.fxml", "gerenciar clientes");
     }
 
     @FXML
@@ -36,21 +48,15 @@ public class MenuController {
     }
 
     @FXML
-    protected void onAbrirManutencao(ActionEvent event) {
-        // chama a tela da oficina
-        trocarTela(event, "manutencao-view.fxml", "oficina - manutenção");
-    }
-
-    @FXML
     protected void irParaRelatorios(ActionEvent event) {
         // chama o relatorio de grana
         trocarTela(event, "relatorio-view.fxml", "relatórios financeiros");
     }
 
     @FXML
-    protected void irParaListaVeiculos(ActionEvent event) {
-        // tela que arrumamos hj mais cedo
-        trocarTela(event, "lista-veiculos-view.fxml", "gerenciar frota");
+    protected void onAbrirManutencao(ActionEvent event) {
+        // chama a tela da oficina
+        trocarTela(event, "manutencao-view.fxml", "oficina - manutenção");
     }
 
     // esse é o botao vermelho de fechar o app
@@ -60,43 +66,41 @@ public class MenuController {
         System.exit(0);
     }
 
-    @FXML
-    protected void irParaListaClientes(ActionEvent event) {
-        trocarTela(event, "lista-clientes-view.fxml", "gerenciar clientes");
-    }
-
     // essa aqui é a engrenagem mestre que criamos hoje cedo pra resolver os seus erros de 'location is not set'
     private void trocarTela(ActionEvent event, String nomeArquivoFxml, String titulo) {
         try {
             // tenta achar o arquivo relativo a nossa classe rodando
             FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(nomeArquivoFxml));
 
-            // se nao achou (deu nulo), tenta passar o endereco completo da raiz dos recursos ate o arquivo
+            // se nao achou, tenta o caminho absoluto
             if (fxmlLoader.getLocation() == null) {
                 fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/org/example/gestaodefrotas/" + nomeArquivoFxml));
             }
 
-            // se continuou nulo, o arquivo fisicamente sumiu ou o nome ta digitado errado
+            // se continuar nulo, cancela pra nao explodir o java
             if (fxmlLoader.getLocation() == null) {
-                System.err.println("❌ arquivo não encontrado: " + nomeArquivoFxml);
-                return; // cancela a troca de tela pra nao explodir o java
+                System.err.println("arquivo não encontrado: " + nomeArquivoFxml);
+                return;
             }
 
-            // carrega o visual
             Scene scene = new Scene(fxmlLoader.load());
-
-            // pega a moldura principal do windows
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            // arruma o nome da janela e joga a tela la dentro
+
             stage.setTitle(titulo);
             stage.setScene(scene);
+
+            // a magica que impede a tela de ficar pulando e mudando de tamanho
+            // trava a largura e a altura sempre no mesmo padrao
+            stage.setWidth(850);
+            stage.setHeight(650);
+            // impede o usuario de maximizar e baguncar o layout da tela
+            stage.setResizable(false);
+
             stage.show();
 
         } catch (IOException e) {
-            // erro ao interpretar o desenho (fxml)
-            System.err.println("❌ erro ao carregar o arquivo fxml: " + nomeArquivoFxml);
+            System.err.println("erro ao carregar o arquivo fxml: " + nomeArquivoFxml);
             e.printStackTrace();
         }
     }
-
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.gestaodefrotas.controller.ListaClientesController">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+    </padding>
+
+    <Label text="Gerenciamento de Clientes" textFill="#2c3e50">
+        <font>
+            <Font name="System Bold" size="26.0" />
+        </font>
+    </Label>
+
+    <TableView fx:id="tabelaClientes" prefHeight="380.0" prefWidth="750.0" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dee2e6; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+        <columns>
+            <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+            <TableColumn fx:id="colNome" prefWidth="250.0" text="Nome Completo" />
+            <TableColumn fx:id="colCpf" prefWidth="130.0" text="CPF" />
+            <TableColumn fx:id="colCnh" prefWidth="130.0" text="CNH" />
+            <TableColumn fx:id="colTelefone" prefWidth="120.0" text="Telefone" />
+            <TableColumn fx:id="colStatus" prefWidth="60.0" text="Status" />
+        </columns>
+    </TableView>
+
+    <HBox spacing="20.0" alignment="CENTER">
+        <Button onAction="#onEditar" text="Editar Cliente" style="-fx-background-color: #ffc107; -fx-text-fill: #212529; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 25 10 25;" />
+        <Button onAction="#onExcluir" text="Excluir (Inativar)" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 25 10 25;" />
+    </HBox>
+
+    <Button onAction="#onVoltar" text="Voltar ao Menu Principal" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 40 10 40;">
+        <VBox.margin>
+            <Insets top="10.0" />
+        </VBox.margin>
+    </Button>
+</VBox>
