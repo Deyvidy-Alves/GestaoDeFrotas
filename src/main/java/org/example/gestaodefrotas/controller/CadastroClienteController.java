@@ -28,7 +28,7 @@ public class CadastroClienteController {
     // variavel que guarda o cliente se a gente estiver na tela de edicao
     private Cliente clienteEmEdicao = null;
 
-    // o metodo que voce encontrou antes: injeta os dados antigos na tela para editar
+    // injeta os dados antigos na tela para editar
     public void prepararEdicao(Cliente c) {
         this.clienteEmEdicao = c;
         txtNome.setText(c.getNome());
@@ -38,7 +38,6 @@ public class CadastroClienteController {
         txtTelefone.setText(c.getTelefone());
     }
 
-    // o grande botao verde de salvar com as validacoes pesadas
     @FXML
     protected void onSalvar() {
         try {

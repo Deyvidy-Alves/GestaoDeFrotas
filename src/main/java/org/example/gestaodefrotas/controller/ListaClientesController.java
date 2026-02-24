@@ -47,7 +47,7 @@ public class ListaClientesController {
 
     private void carregarTabela() {
         try {
-            // carrega a lista atualizada mostrando os ativos e os inativos (vencidos)
+            // carrega a lista atualizada mostrando os ativos e os inativos
             ObservableList<Cliente> clientes = FXCollections.observableArrayList(new ClienteDAO().listarTodos());
             tabelaClientes.setItems(clientes);
         } catch (SQLException e) {

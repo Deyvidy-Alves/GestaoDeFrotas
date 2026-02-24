@@ -55,8 +55,7 @@ public class ManutencaoController {
         }
 
         try {
-            // o ajuste mestre! passamos apenas o id para o dao resetar o ciclo de revisao
-            // isso resolve o erro de 'cannot find symbol' que estava dando na build
+            // apenas o id para o dao resetar o ciclo de revisao
             new VeiculoDAO().finalizarManutencao(veiculoSelecionado.getId());
 
             // confirma o sucesso

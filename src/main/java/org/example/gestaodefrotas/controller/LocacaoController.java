@@ -59,7 +59,7 @@ public class LocacaoController {
             @Override
             public void updateItem(LocalDate item, boolean empty) {
                 super.updateItem(item, empty);
-                // se o dia for antes de hoje...
+                // se o dia for antes de hoje
                 if (item != null && item.isBefore(LocalDate.now())) {
                     // desativa o clique no dia
                     setDisable(true);
