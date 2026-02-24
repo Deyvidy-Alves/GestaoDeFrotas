@@ -29,7 +29,7 @@
 
     <HBox spacing="20.0" alignment="CENTER">
         <Button onAction="#onEditar" text="Editar Cliente" style="-fx-background-color: #ffc107; -fx-text-fill: #212529; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 25 10 25;" />
-        <Button onAction="#onExcluir" text="Excluir (Inativar)" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 25 10 25;" />
+        <Button onAction="#onExcluir" text="Excluir" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 25 10 25;" />
     </HBox>
 
     <Button onAction="#onVoltar" text="Voltar ao Menu Principal" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 40 10 40;">

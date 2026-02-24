@@ -23,6 +23,7 @@ import java.sql.SQLException;
 
 public class ListaClientesController {
 
+    // amarrando as colunas da tela com o codigo
     @FXML private TableView<Cliente> tabelaClientes;
     @FXML private TableColumn<Cliente, Integer> colId;
     @FXML private TableColumn<Cliente, String> colNome;
@@ -33,7 +34,7 @@ public class ListaClientesController {
 
     @FXML
     public void initialize() {
-        // PROPERTYVALUEFACTORY: Mapeamento automatico inteligente (lembra da dica pra professora?)
+        // reflection: mapeia automaticamente as colunas da tela com a classe cliente
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colCpf.setCellValueFactory(new PropertyValueFactory<>("cpf"));
@@ -46,6 +47,7 @@ public class ListaClientesController {
 
     private void carregarTabela() {
         try {
+            // carrega a lista atualizada mostrando os ativos e os inativos (vencidos)
             ObservableList<Cliente> clientes = FXCollections.observableArrayList(new ClienteDAO().listarTodos());
             tabelaClientes.setItems(clientes);
         } catch (SQLException e) {
@@ -66,7 +68,7 @@ public class ListaClientesController {
             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("cadastro-cliente-view.fxml"));
             Parent root = loader.load();
 
-            // Pega o controle e injeta os dados (a magica que voce achou escondida)
+            // injeta os dados do cliente selecionado na tela de cadastro para poder editar
             CadastroClienteController controller = loader.getController();
             controller.prepararEdicao(selecionado);
 
@@ -79,28 +81,29 @@ public class ListaClientesController {
         }
     }
 
+    // regra de exclusao usando a nomenclatura correta
     @FXML
     protected void onExcluir(ActionEvent event) {
         Cliente selecionado = tabelaClientes.getSelectionModel().getSelectedItem();
 
         if (selecionado == null) {
-            mostrarAlerta("atenção", "selecione um cliente para inativar!");
+            mostrarAlerta("atenção", "selecione um cliente para excluir!");
             return;
         }
 
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("confirmar inativação");
+        confirmacao.setTitle("confirmar exclusão");
         confirmacao.setHeaderText("excluir " + selecionado.getNome() + "?");
-        confirmacao.setContentText("o cliente será inativado e sumirá das telas, mas o histórico financeiro continuará intacto.");
+        confirmacao.setContentText("o cliente será removido desta lista, mas o histórico financeiro continuará intacto no banco.");
 
         if (confirmacao.showAndWait().orElse(null) == ButtonType.OK) {
             try {
-                // aciona a regra de SOFT DELETE
-                new ClienteDAO().inativar(selecionado.getId());
-                mostrarAlerta("sucesso", "cliente inativado com sucesso!");
+                // aciona o dao para mudar o status para 'excluido'
+                new ClienteDAO().excluir(selecionado.getId());
+                mostrarAlerta("sucesso", "cliente excluído com sucesso!");
                 carregarTabela();
             } catch (SQLException e) {
-                mostrarAlerta("erro", "falha ao inativar: " + e.getMessage());
+                mostrarAlerta("erro", "falha ao excluir: " + e.getMessage());
             }
         }
     }
@@ -112,12 +115,14 @@ public class ListaClientesController {
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    // balaozinho padrao
     private void mostrarAlerta(String titulo, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
