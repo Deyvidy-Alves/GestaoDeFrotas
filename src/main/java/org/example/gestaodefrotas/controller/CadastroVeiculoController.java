@@ -59,24 +59,45 @@ public class CadastroVeiculoController {
         cbTipo.setDisable(true);
     }
 
+    // o metodo acionado ao clicar no botao salvar
     @FXML
     protected void onSalvar() {
         try {
+            // coleta os textos digitados
             String modelo = txtModelo.getText();
-            String placa = txtPlaca.getText();
+            // o trim() arranca espacos em branco que o usuario pode ter digitado sem querer antes ou depois da placa
+            String placa = txtPlaca.getText().trim();
             int km = Integer.parseInt(txtKm.getText());
             double valor = Double.parseDouble(txtValor.getText());
             int detalhe = Integer.parseInt(txtDetalhe.getText());
             String tipo = cbTipo.getValue();
 
+            // validacao de campos vazios para nao dar erro no banco
+            if (modelo.isEmpty() || placa.isEmpty()) {
+                mostrarAlerta("atenção", "modelo e placa são obrigatórios!");
+                return;
+            }
+
             VeiculoDAO dao = new VeiculoDAO();
 
+            // regra de negocio: tratamento de placas clonadas/duplicadas
+            // se for cadastro novo, o id e -1. se for edicao, pega o id verdadeiro do carro
+            int idAtual = (veiculoEmEdicao == null) ? -1 : veiculoEmEdicao.getId();
+
+            // o controller pergunta pro dao se a placa existe. se retornar true, bloqueia e cancela o salvamento
+            if (dao.placaExiste(placa, idAtual)) {
+                mostrarAlerta("erro de validação", "já existe outro veículo cadastrado com a placa " + placa + "!");
+                return; // o return para a execucao do metodo aqui e nao deixa salvar
+            }
+
             if (veiculoEmEdicao == null) {
-                // heranca em acao: constroi o filho especifico
+                // aplicacao pratica da heranca e poo
                 Veiculo novoVeiculo;
                 if ("MOTO".equals(tipo)) {
+                    // cria um objeto moto na memoria
                     novoVeiculo = new Moto(modelo, placa, km, valor, detalhe);
                 } else {
+                    // cria um objeto carro na memoria
                     novoVeiculo = new Carro(modelo, placa, km, valor, detalhe);
                 }
 
@@ -89,6 +110,7 @@ public class CadastroVeiculoController {
                 veiculoEmEdicao.setKm(km);
                 veiculoEmEdicao.setValorDiaria(valor);
 
+                // lanca o detalhe especifico dependendo da classe instanciada
                 if (veiculoEmEdicao instanceof Moto) {
                     ((Moto) veiculoEmEdicao).setCilindradas(detalhe);
                 } else if (veiculoEmEdicao instanceof Carro) {
@@ -101,11 +123,12 @@ public class CadastroVeiculoController {
 
             limparCampos();
             veiculoEmEdicao = null;
-            lblTitulo.setText("novo veículo");
+            if (lblTitulo != null) lblTitulo.setText("novo veículo");
             cbTipo.setDisable(false);
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("erro", "km, valor e detalhe devem ser números!");
+            // tratamento de erro: se o usuario digitar letra onde e numero, o java avisa em vez de quebrar
+            mostrarAlerta("erro", "km, valor e detalhe (portas/cilindradas) devem ser números válidos!");
         } catch (Exception e) {
             mostrarAlerta("erro", "falha na operação: " + e.getMessage());
         }

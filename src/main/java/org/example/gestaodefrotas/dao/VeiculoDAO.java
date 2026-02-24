@@ -141,4 +141,23 @@ public class VeiculoDAO {
         }
     }
 
+    // metodo de validacao: checa se a placa digitada ja pertence a outro veiculo no banco
+    // o parametro 'idatual' serve para ele ignorar o proprio veiculo na hora da edicao
+    public boolean placaExiste(String placa, int idAtual) throws SQLException {
+        // o sql procura a placa, mas exclui da busca o id do veiculo que estamos editando
+        String sql = "SELECT id FROM veiculos WHERE placa = ? AND id != ?";
+
+        try (Connection conn = ConexaoDB.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, placa);
+            stmt.setInt(2, idAtual);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                // se o rs.next() for verdadeiro, significa que ele achou outro carro com essa placa
+                return rs.next();
+            }
+        }
+    }
+
 }
