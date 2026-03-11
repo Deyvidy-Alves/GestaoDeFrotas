@@ -29,7 +29,7 @@ O sistema simula o controle logístico e operacional de uma empresa de locação
 ### Passos
 1. Faça o clone do repositório:
    ```bash
-   git clone [https://github.com/SEU_USUARIO/GestaoDeFrotas.git](https://github.com/SEU_USUARIO/GestaoDeFrotas.git)
+   git clone https://github.com/Deyvidy-Alves/GestaoDeFrotas
     ´´´
 2. Abra a pasta do projeto na sua IDE favorita.
 
