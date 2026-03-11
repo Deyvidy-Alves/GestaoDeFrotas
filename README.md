@@ -30,7 +30,7 @@ O sistema simula o controle logístico e operacional de uma empresa de locação
 1. Faça o clone do repositório:
    ```bash
    git clone https://github.com/Deyvidy-Alves/GestaoDeFrotas
-    ´´´
+´´´
 2. Abra a pasta do projeto na sua IDE favorita.
 
 3. Certifique-se de configurar as dependências do JavaFX no seu module-info.java ou nas bibliotecas do projeto.
